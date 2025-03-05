@@ -17,11 +17,39 @@ def load_model():
 model = load_model()
 
 def load_data():
-    # Chargez vos données pour la visualisation (par exemple un fichier CSV généré dans le notebook)
+    # Chargez vos données pour la visualisation (ex : un fichier CSV généré dans le notebook)
     data = pd.read_csv("credit_risk_dataset.csv")
     return data
 
 data = load_data()
+
+# -------------------------------
+# Fonction de prétraitement
+# -------------------------------
+def preprocess_input(df):
+    # Mapping pour person_home_ownership
+    mapping_home = {"OWN": 0, "MORTGAGE": 1, "RENT": 2, "OTHER": 3}
+    df["person_home_ownership"] = df["person_home_ownership"].map(mapping_home)
+    
+    # Mapping pour loan_intent
+    mapping_intent = {
+        "personal": 0, 
+        "credit_card": 1, 
+        "home_improvement": 2, 
+        "small_business": 3, 
+        "debt_consolidation": 4
+    }
+    df["loan_intent"] = df["loan_intent"].map(mapping_intent)
+    
+    # Mapping pour loan_grade
+    mapping_grade = {"A": 0, "B": 1, "C": 2, "D": 3, "E": 4, "F": 5, "G": 6}
+    df["loan_grade"] = df["loan_grade"].map(mapping_grade)
+    
+    # Mapping pour cb_person_default_on_file
+    mapping_default = {"Y": 1, "N": 0}
+    df["cb_person_default_on_file"] = df["cb_person_default_on_file"].map(mapping_default)
+    
+    return df
 
 # -------------------------------
 # Titre et explications
@@ -63,11 +91,14 @@ client_df = pd.DataFrame({
     'cb_person_cred_hist_length': [cb_person_cred_hist_length]
 })
 
+# Prétraitement des données pour convertir les variables catégorielles
+client_df_processed = preprocess_input(client_df)
+
 # -------------------------------
 # Prédiction en temps réel
 # -------------------------------
 if st.sidebar.button("Prédire"):
-    prediction = model.predict(client_df)
+    prediction = model.predict(client_df_processed)
     st.subheader("Résultat de la Prédiction")
     st.write(f"Le modèle prédit : **{prediction[0]}**")
 
@@ -87,3 +118,4 @@ fig_scatter = px.scatter(data, x="person_income", y="loan_amnt", color="person_a
                          title="Revenu vs Montant du Prêt",
                          labels={"person_income": "Revenu annuel (€)", "loan_amnt": "Montant du prêt"})
 st.plotly_chart(fig_scatter, use_container_width=True)
+
