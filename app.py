@@ -5,6 +5,7 @@ import joblib
 
 # Charger le modèle
 model = joblib.load("model.joblib")
+scaler = joblib.load("scaler.joblib")  
 
 # Interface utilisateur Streamlit
 st.title("Prédiction du Risque de Crédit")
